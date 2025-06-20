@@ -1,0 +1,139 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database for Keycloak
+  keycloak-db:
+    image: postgres:15-alpine
+    container_name: keycloak_postgres
+    environment:
+      POSTGRES_DB: ${KEYCLOAK_DB_NAME:-keycloak_db}
+      POSTGRES_USER: ${KEYCLOAK_DB_USER:-keycloak_user}
+      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD:-keycloak_strong_password_123}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    ports:
+      - "${KEYCLOAK_DB_PORT:-5433}:5432"  # Use different port to avoid conflicts
+    volumes:
+      - keycloak_db_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    networks:
+      - keycloak_network
+      - microservices_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${KEYCLOAK_DB_USER:-keycloak_user} -d ${KEYCLOAK_DB_NAME:-keycloak_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    labels:
+      - "service.name=keycloak-db"
+      - "service.version=15.0"
+
+  # Keycloak Identity Provider
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0.7
+    container_name: keycloak_server
+    command: 
+      - start
+      - --optimized
+      - --import-realm
+    environment:
+      # Database Configuration
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/${KEYCLOAK_DB_NAME:-keycloak_db}
+      KC_DB_USERNAME: ${KEYCLOAK_DB_USER:-keycloak_user}
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:-keycloak_strong_password_123}
+      
+      # Server Configuration
+      KC_HOSTNAME: ${KEYCLOAK_HOSTNAME:-localhost}
+      KC_HTTP_ENABLED: true
+      KC_HTTP_PORT: 8080
+      KC_PROXY: edge
+      KC_PROXY_ADDRESS_FORWARDING: true
+      
+      # Admin Configuration
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN_USER:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin_strong_password_123}
+      
+      # Logging
+      KC_LOG_LEVEL: ${KEYCLOAK_LOG_LEVEL:-INFO}
+      
+      # Performance
+      KC_CACHE: ispn
+      KC_CACHE_STACK: tcp
+      
+      # Health checks
+      KC_HEALTH_ENABLED: true
+      KC_METRICS_ENABLED: true
+    ports:
+      - "${KEYCLOAK_PORT:-8082}:8080"  # Direct access for development
+    expose:
+      - "8080"  # For API Gateway access
+    volumes:
+      # Realm configurations for auto-import
+      - ./keycloak/realm-configs:/opt/keycloak/data/import:ro
+      # Custom themes
+      - ./keycloak/themes:/opt/keycloak/themes:ro
+      # Custom providers (if any)
+      - ./keycloak/custom-providers:/opt/keycloak/providers:ro
+      # Configuration file
+      - ./config/keycloak.conf:/opt/keycloak/conf/keycloak.conf:ro
+    networks:
+      - keycloak_network
+      - microservices_network
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health/ready || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+    labels:
+      - "service.name=keycloak"
+      - "service.version=23.0.7"
+      - "service.description=Centralized Identity and Access Management"
+
+  # Redis for Session Clustering (Future)
+  keycloak-redis:
+    image: redis:7-alpine
+    container_name: keycloak_redis
+    ports:
+      - "${KEYCLOAK_REDIS_PORT:-6380}:6379"  # Different port to avoid conflicts
+    volumes:
+      - keycloak_redis_data:/data
+    networks:
+      - keycloak_network
+    command: redis-server --appendonly yes --requirepass ${KEYCLOAK_REDIS_PASSWORD:-redis_strong_password}
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    labels:
+      - "service.name=keycloak-redis"
+      - "service.version=7.0"
+
+volumes:
+  keycloak_db_data:
+    driver: local
+    labels:
+      - "backup.enable=true"
+      - "backup.schedule=daily"
+  
+  keycloak_redis_data:
+    driver: local
+
+networks:
+  # Internal Keycloak network
+  keycloak_network:
+    name: keycloak_network
+    driver: bridge
+    internal: false
+    
+  # Shared microservices network
+  microservices_network:
+    external: true
+    name: microservices_network

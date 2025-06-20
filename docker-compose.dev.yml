@@ -1,0 +1,73 @@
+version: '3.8'
+
+# Development override for Keycloak Service
+# Use with: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+
+services:
+  keycloak-db:
+    ports:
+      - "5433:5432"  # Expose database port for development tools
+    environment:
+      POSTGRES_DB: keycloak_dev_db
+      POSTGRES_USER: keycloak_dev_user
+      POSTGRES_PASSWORD: dev_password_123
+    volumes:
+      - keycloak_dev_db_data:/var/lib/postgresql/data
+
+  keycloak:
+    environment:
+      # Development-specific settings
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak_dev_db
+      KC_DB_USERNAME: keycloak_dev_user
+      KC_DB_PASSWORD: dev_password_123
+      KC_HOSTNAME: localhost
+      KC_LOG_LEVEL: DEBUG
+      KC_HOSTNAME_DEBUG: true
+      
+      # Development admin credentials
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin123
+      
+      # Enable development features
+      KC_FEATURES: declarative-user-profile,admin-fine-grained-authz
+    ports:
+      - "8082:8080"  # Direct access for development
+      - "9990:9990"  # Management console
+    volumes:
+      # Development realm configs
+      - ./keycloak/realm-configs:/opt/keycloak/data/import:ro
+      # Development themes
+      - ./keycloak/themes:/opt/keycloak/themes:rw
+      # Live reload for theme development
+      - ./keycloak/theme-resources:/opt/keycloak/themes/custom:rw
+    command: 
+      - start-dev
+      - --import-realm
+      - --log-level=DEBUG
+    labels:
+      - "development=true"
+      - "auto-reload=enabled"
+
+  # Development tools
+  keycloak-adminer:
+    image: adminer:4.8.1
+    container_name: keycloak_adminer
+    ports:
+      - "8083:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: keycloak-db
+      ADMINER_DESIGN: dracula
+    networks:
+      - keycloak_network
+    depends_on:
+      - keycloak-db
+    labels:
+      - "service.name=keycloak-adminer"
+      - "service.description=Database administration tool"
+
+volumes:
+  keycloak_dev_db_data:
+    driver: local
+    labels:
+      - "environment=development"
+      - "auto-cleanup=true"
