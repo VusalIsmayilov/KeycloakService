@@ -1,0 +1,262 @@
+{
+  "realm": "services",
+  "displayName": "Services Realm",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "failureFactor": 5,
+  "waitIncrementSeconds": 60,
+  "quickLoginCheckMilliSeconds": 1000,
+  "minimumQuickLoginWaitSeconds": 60,
+  "maxFailureWaitSeconds": 900,
+  "maxDeltaTimeSeconds": 43200,
+  "clients": [
+    {
+      "clientId": "auth-service",
+      "name": "Authentication Service",
+      "description": "Authentication microservice client",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "auth-service-secret-key-2024",
+      "redirectUris": [
+        "http://localhost:5001/*",
+        "https://localhost:5001/*"
+      ],
+      "webOrigins": [
+        "http://localhost:5001",
+        "https://localhost:5001"
+      ],
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "bearerOnly": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "attributes": {
+        "access.token.lifespan": "1800",
+        "refresh.token.lifespan": "604800",
+        "use.refresh.tokens": "true"
+      }
+    },
+    {
+      "clientId": "project-service",
+      "name": "Project Service",
+      "description": "Project management microservice client",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "project-service-secret-key-2024",
+      "redirectUris": [
+        "http://localhost:5002/*",
+        "https://localhost:5002/*"
+      ],
+      "webOrigins": [
+        "http://localhost:5002",
+        "https://localhost:5002"
+      ],
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "bearerOnly": true,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "attributes": {
+        "access.token.lifespan": "1800"
+      }
+    },
+    {
+      "clientId": "frontend-app",
+      "name": "Frontend Application",
+      "description": "Frontend web application client",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "frontend-app-secret-key-2024",
+      "redirectUris": [
+        "http://localhost:3000/*",
+        "https://localhost:3000/*",
+        "http://localhost:4200/*",
+        "https://localhost:4200/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3000",
+        "https://localhost:3000",
+        "http://localhost:4200",
+        "https://localhost:4200"
+      ],
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "bearerOnly": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "attributes": {
+        "access.token.lifespan": "900",
+        "refresh.token.lifespan": "1800",
+        "use.refresh.tokens": "true",
+        "pkce.code.challenge.method": "S256"
+      }
+    },
+    {
+      "clientId": "api-gateway",
+      "name": "API Gateway",
+      "description": "API Gateway service client",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "api-gateway-secret-key-2024",
+      "redirectUris": [
+        "http://localhost:8080/*",
+        "https://localhost:8080/*"
+      ],
+      "webOrigins": [
+        "http://localhost:8080",
+        "https://localhost:8080"
+      ],
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "bearerOnly": true,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "attributes": {
+        "access.token.lifespan": "1800"
+      }
+    }
+  ],
+  "roles": {
+    "realm": [
+      {
+        "name": "platform-admin",
+        "description": "Platform Administrator role with full system access",
+        "composite": false
+      },
+      {
+        "name": "homeowner",
+        "description": "Homeowner role for property owners",
+        "composite": false
+      },
+      {
+        "name": "contractor",
+        "description": "Contractor role for service providers",
+        "composite": false
+      },
+      {
+        "name": "service",
+        "description": "Service account role for inter-service communication",
+        "composite": false
+      }
+    ]
+  },
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "System",
+      "lastName": "Administrator",
+      "email": "admin@services.local",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "AdminPassword123!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["platform-admin"],
+      "attributes": {
+        "locale": ["en"]
+      }
+    },
+    {
+      "username": "manager",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Project",
+      "lastName": "Manager",
+      "email": "manager@services.local",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "ManagerPassword123!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["homeowner"],
+      "attributes": {
+        "locale": ["en"]
+      }
+    },
+    {
+      "username": "testuser",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Test",
+      "lastName": "User",
+      "email": "testuser@services.local",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "TestUser123!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["contractor"],
+      "attributes": {
+        "locale": ["en"]
+      }
+    }
+  ],
+  "defaultRoles": ["homeowner"],
+  "requiredCredentials": ["password"],
+  "passwordPolicy": "length(8) and digits(1) and lowerCase(1) and upperCase(1) and specialChars(1) and notUsername and notEmail and passwordHistory(5)",
+  "otpPolicyType": "totp",
+  "otpPolicyAlgorithm": "HmacSHA1",
+  "otpPolicyInitialCounter": 0,
+  "otpPolicyDigits": 6,
+  "otpPolicyLookAheadWindow": 1,
+  "otpPolicyPeriod": 30,
+  "otpSupportedApplications": ["totpAppGoogleName", "totpAppMicrosoftAuthenticatorName"],
+  "browserSecurityHeaders": {
+    "contentSecurityPolicyReportOnly": "",
+    "xContentTypeOptions": "nosniff",
+    "xRobotTag": "none",
+    "xFrameOptions": "SAMEORIGIN",
+    "contentSecurityPolicy": "frame-src 'self'; frame-ancestors 'self'; object-src 'none';",
+    "xXSSProtection": "1; mode=block",
+    "strictTransportSecurity": "max-age=31536000; includeSubDomains"
+  },
+  "smtpServer": {},
+  "loginTheme": "keycloak",
+  "accountTheme": "keycloak",
+  "adminTheme": "keycloak",
+  "emailTheme": "keycloak",
+  "internationalizationEnabled": true,
+  "supportedLocales": ["en", "es", "fr", "de"],
+  "defaultLocale": "en",
+  "browserFlow": "browser",
+  "registrationFlow": "registration",
+  "directGrantFlow": "direct grant",
+  "resetCredentialsFlow": "reset credentials",
+  "clientAuthenticationFlow": "clients",
+  "dockerAuthenticationFlow": "docker auth",
+  "attributes": {
+    "cibaBackchannelTokenDeliveryMode": "poll",
+    "cibaExpiresIn": "120",
+    "cibaInterval": "5",
+    "cibaAuthRequestedUserHint": "login_hint",
+    "parRequestUriLifespan": "60",
+    "frontendUrl": "",
+    "acr.loa.map": "{}",
+    "clientOfflineSessionIdleTimeout": "0",
+    "clientOfflineSessionMaxLifespan": "0",
+    "clientSessionIdleTimeout": "0",
+    "clientSessionMaxLifespan": "0"
+  }
+}

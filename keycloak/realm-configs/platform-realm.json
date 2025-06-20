@@ -1,0 +1,173 @@
+{
+  "realm": "platform",
+  "displayName": "Platform Realm",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "failureFactor": 5,
+  "waitIncrementSeconds": 60,
+  "quickLoginCheckMilliSeconds": 1000,
+  "minimumQuickLoginWaitSeconds": 60,
+  "maxFailureWaitSeconds": 900,
+  "maxDeltaTimeSeconds": 43200,
+  "clients": [
+    {
+      "clientId": "platform-app",
+      "name": "Platform Application",
+      "description": "Main platform application client",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "platform-app-secret-key-2024",
+      "redirectUris": [
+        "http://localhost:3000/*",
+        "https://localhost:3000/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3000",
+        "https://localhost:3000"
+      ],
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "bearerOnly": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "attributes": {
+        "access.token.lifespan": "900",
+        "refresh.token.lifespan": "1800",
+        "use.refresh.tokens": "true",
+        "pkce.code.challenge.method": "S256"
+      }
+    }
+  ],
+  "roles": {
+    "realm": [
+      {
+        "name": "platform-admin",
+        "description": "Platform Administrator role with full system access",
+        "composite": false
+      },
+      {
+        "name": "homeowner",
+        "description": "Homeowner role for property owners",
+        "composite": false
+      },
+      {
+        "name": "contractor",
+        "description": "Contractor role for service providers",
+        "composite": false
+      }
+    ]
+  },
+  "users": [
+    {
+      "username": "platform-admin",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Platform",
+      "lastName": "Administrator",
+      "email": "admin@platform.local",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "PlatformAdmin123!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["platform-admin"],
+      "attributes": {
+        "locale": ["en"]
+      }
+    },
+    {
+      "username": "homeowner1",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "John",
+      "lastName": "Homeowner",
+      "email": "homeowner@platform.local",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Homeowner123!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["homeowner"],
+      "attributes": {
+        "locale": ["en"]
+      }
+    },
+    {
+      "username": "contractor1",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Mike",
+      "lastName": "Contractor",
+      "email": "contractor@platform.local",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Contractor123!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["contractor"],
+      "attributes": {
+        "locale": ["en"]
+      }
+    }
+  ],
+  "defaultRoles": ["homeowner"],
+  "requiredCredentials": ["password"],
+  "passwordPolicy": "length(8) and digits(1) and lowerCase(1) and upperCase(1) and specialChars(1) and notUsername and notEmail and passwordHistory(5)",
+  "otpPolicyType": "totp",
+  "otpPolicyAlgorithm": "HmacSHA1",
+  "otpPolicyInitialCounter": 0,
+  "otpPolicyDigits": 6,
+  "otpPolicyLookAheadWindow": 1,
+  "otpPolicyPeriod": 30,
+  "otpSupportedApplications": ["totpAppGoogleName", "totpAppMicrosoftAuthenticatorName"],
+  "browserSecurityHeaders": {
+    "contentSecurityPolicyReportOnly": "",
+    "xContentTypeOptions": "nosniff",
+    "xRobotTag": "none",
+    "xFrameOptions": "SAMEORIGIN",
+    "contentSecurityPolicy": "frame-src 'self'; frame-ancestors 'self'; object-src 'none';",
+    "xXSSProtection": "1; mode=block",
+    "strictTransportSecurity": "max-age=31536000; includeSubDomains"
+  },
+  "smtpServer": {},
+  "loginTheme": "keycloak",
+  "accountTheme": "keycloak",
+  "adminTheme": "keycloak",
+  "emailTheme": "keycloak",
+  "internationalizationEnabled": true,
+  "supportedLocales": ["en", "es", "fr", "de"],
+  "defaultLocale": "en",
+  "browserFlow": "browser",
+  "registrationFlow": "registration",
+  "directGrantFlow": "direct grant",
+  "resetCredentialsFlow": "reset credentials",
+  "clientAuthenticationFlow": "clients",
+  "dockerAuthenticationFlow": "docker auth",
+  "attributes": {
+    "cibaBackchannelTokenDeliveryMode": "poll",
+    "cibaExpiresIn": "120",
+    "cibaInterval": "5",
+    "cibaAuthRequestedUserHint": "login_hint",
+    "parRequestUriLifespan": "60",
+    "frontendUrl": "",
+    "acr.loa.map": "{}",
+    "clientOfflineSessionIdleTimeout": "0",
+    "clientOfflineSessionMaxLifespan": "0",
+    "clientSessionIdleTimeout": "0",
+    "clientSessionMaxLifespan": "0"
+  }
+}

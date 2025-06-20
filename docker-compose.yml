@@ -30,7 +30,10 @@ services:
 
   # Keycloak Identity Provider
   keycloak:
-    image: quay.io/keycloak/keycloak:23.0.7
+    build:
+      context: .
+      dockerfile: Dockerfile.keycloak
+    image: keycloak-service:latest
     container_name: keycloak_server
     command: 
       - start
@@ -44,7 +47,10 @@ services:
       KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:-keycloak_strong_password_123}
       
       # Server Configuration
-      KC_HOSTNAME: ${KEYCLOAK_HOSTNAME:-localhost}
+      KC_HOSTNAME_URL: http://localhost:8082
+      KC_HOSTNAME_ADMIN_URL: http://localhost:8082
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
       KC_HTTP_ENABLED: true
       KC_HTTP_PORT: 8080
       KC_PROXY: edge
@@ -75,8 +81,6 @@ services:
       - ./keycloak/themes:/opt/keycloak/themes:ro
       # Custom providers (if any)
       - ./keycloak/custom-providers:/opt/keycloak/providers:ro
-      # Configuration file
-      - ./config/keycloak.conf:/opt/keycloak/conf/keycloak.conf:ro
     networks:
       - keycloak_network
       - microservices_network

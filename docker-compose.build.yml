@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  # Build step for Keycloak
+  keycloak-build:
+    image: quay.io/keycloak/keycloak:23.0.7
+    container_name: keycloak_build
+    command: 
+      - build
+      - --db=postgres
+      - --health-enabled=true
+      - --metrics-enabled=true
+      - --cache=ispn
+      - --cache-stack=tcp
+    volumes:
+      - keycloak_build_data:/opt/keycloak/lib/quarkus
+
+volumes:
+  keycloak_build_data:
+    driver: local
