@@ -148,8 +148,8 @@
         "composite": false
       },
       {
-        "name": "service",
-        "description": "Service account role for inter-service communication",
+        "name": "service-client",
+        "description": "Service client role for inter-service communication",
         "composite": false
       }
     ]
